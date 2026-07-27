@@ -9,16 +9,6 @@ type PendingCookie = {
 
 export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url);
-  const code = requestUrl.searchParams.get("code");
-  const next = requestUrl.searchParams.get("next");
-  const returnTo = next?.startsWith("/") && !next.startsWith("//") ? next : "/";
-
-  if (!code) {
-    const errorUrl = new URL("/", requestUrl.origin);
-    errorUrl.searchParams.set("auth_error", "Google did not return an authorization code.");
-    return NextResponse.redirect(errorUrl);
-  }
-
   let pendingCookies: PendingCookie[] = [];
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -33,14 +23,21 @@ export async function GET(request: NextRequest) {
     },
   );
 
-  const { error } = await supabase.auth.exchangeCodeForSession(code);
-  if (error) {
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: `${requestUrl.origin}/auth/callback`,
+      skipBrowserRedirect: true,
+    },
+  });
+
+  if (error || !data.url) {
     const errorUrl = new URL("/", requestUrl.origin);
-    errorUrl.searchParams.set("auth_error", error.message);
+    errorUrl.searchParams.set("auth_error", error?.message ?? "Could not start Google sign-in.");
     return NextResponse.redirect(errorUrl);
   }
 
-  const response = NextResponse.redirect(new URL(returnTo, requestUrl.origin));
+  const response = NextResponse.redirect(data.url);
   pendingCookies.forEach(({ name, value, options }) => {
     response.cookies.set(name, value, options);
   });

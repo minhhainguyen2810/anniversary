@@ -15,7 +15,7 @@ function GlassButton({ children, onClick, label, className = "", disabled = fals
   return <button type="button" aria-label={label} title={label} disabled={disabled} onClick={onClick} className={`icon-button ${className}`}>{children}</button>;
 }
 
-export default function AnniversaryApp({ mode, anniversaries: initial, household: initialHousehold }: { mode: Mode; anniversaries: AppAnniversary[]; household: Household }) {
+export default function AnniversaryApp({ mode, anniversaries: initial, household: initialHousehold, authError }: { mode: Mode; anniversaries: AppAnniversary[]; household: Household; authError?: string }) {
   const [anniversaries, setAnniversaries] = useState(initial);
   const [household, setHousehold] = useState(initialHousehold);
   const [tab, setTab] = useState<"home" | "days">("home");
@@ -26,7 +26,7 @@ export default function AnniversaryApp({ mode, anniversaries: initial, household
   const [photoIndex, setPhotoIndex] = useState(0);
   const [headlineIndex, setHeadlineIndex] = useState(0);
   const [loadingPhoto, setLoadingPhoto] = useState(false);
-  const [toast, setToast] = useState("");
+  const [toast, setToast] = useState(authError ?? "");
   const today = localIsoDate();
   const todaysEvents = useMemo(() => anniversaries.flatMap((anniversary) => {
     const matches = isSpecialToday(anniversary, today);
@@ -54,10 +54,8 @@ export default function AnniversaryApp({ mode, anniversaries: initial, household
     else void loadPhoto(Math.floor(Math.random() * 20) + 1);
   }
 
-  async function signIn() {
-    if (!supabase) return;
-    const { error } = await supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo: `${window.location.origin}/auth/callback` } });
-    if (error) setToast(error.message);
+  function signIn() {
+    window.location.assign("/auth/login");
   }
 
   async function signOut() { if (supabase) { await supabase.auth.signOut(); window.location.reload(); } }

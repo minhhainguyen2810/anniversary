@@ -39,5 +39,6 @@ next-env.d.ts
 /dist/
 /.wrangler/
 /.pnpm-store/
+.dev-server*.log
 /outputs/
 /work/
