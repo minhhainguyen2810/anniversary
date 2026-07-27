@@ -1,4 +1,5 @@
 create extension if not exists pgcrypto;
+create schema if not exists private;
 
 create table if not exists public.households (
   id uuid primary key default gen_random_uuid(),
