@@ -27,8 +27,17 @@ export async function POST(request: Request) {
   const { error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: error.status ?? 400 });
+    return NextResponse.json(
+      { error: error.message },
+      {
+        status: error.status ?? 400,
+        headers: { "Cache-Control": "private, no-store" },
+      },
+    );
   }
 
-  return NextResponse.json({ ok: true });
+  return NextResponse.json(
+    { ok: true },
+    { headers: { "Cache-Control": "private, no-store" } },
+  );
 }

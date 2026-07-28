@@ -134,10 +134,19 @@ function EmailAuthCard({ initialMessage }: { initialMessage?: string }) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email: email.trim(), password }),
         });
-        const result = await response.json() as { error?: string };
+        const responseText = await response.text();
+        let result: { error?: string } = {};
+
+        if (responseText) {
+          try {
+            result = JSON.parse(responseText) as { error?: string };
+          } catch {
+            result = { error: responseText };
+          }
+        }
 
         if (!response.ok) {
-          setMessage(result.error ?? "Unable to sign in. Please try again.");
+          setMessage(result.error ?? `Sign in failed (${response.status}). Please try again.`);
           return;
         }
 
