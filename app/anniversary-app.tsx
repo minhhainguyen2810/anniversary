@@ -57,15 +57,33 @@ export default function AnniversaryApp({ mode, anniversaries: initial, household
   async function signOut() { if (supabase) { await supabase.auth.signOut(); window.location.reload(); } }
 
   async function createHousehold() {
-    if (!supabase) return;
-    const { data, error } = await supabase.rpc("create_household");
-    if (error) setToast(error.message); else { setHousehold(data); window.location.reload(); }
+    const result = await submitHouseholdRequest({ action: "create" });
+    if (result.error) setToast(result.error);
+    else if (result.household) { setHousehold(result.household); window.location.reload(); }
   }
 
   async function joinHousehold(code: string) {
-    if (!supabase) return;
-    const { data, error } = await supabase.rpc("join_household", { input_code: code });
-    if (error) setToast(error.message); else { setHousehold(data); window.location.reload(); }
+    const result = await submitHouseholdRequest({ action: "join", inviteCode: code });
+    if (result.error) setToast(result.error);
+    else if (result.household) { setHousehold(result.household); window.location.reload(); }
+  }
+
+  async function submitHouseholdRequest(body: { action: "create" | "join"; inviteCode?: string }) {
+    try {
+      const response = await fetch("/api/households", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const responseText = await response.text();
+      const result = responseText
+        ? JSON.parse(responseText) as { household?: Exclude<Household, null>; error?: string }
+        : {};
+      if (!response.ok) return { error: result.error ?? `Household request failed (${response.status}).` };
+      return result;
+    } catch {
+      return { error: "Unable to reach the household service. Please try again." };
+    }
   }
 
   async function saveAnniversary(name: string, date: string) {
