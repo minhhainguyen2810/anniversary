@@ -57,7 +57,7 @@ create policy "members can edit anniversaries" on public.anniversaries for updat
 create policy "members can delete anniversaries" on public.anniversaries for delete to authenticated using (private.is_household_member(household_id));
 
 create or replace function public.create_household()
-returns public.households language plpgsql security definer set search_path = public, private as $$
+returns public.households language plpgsql security definer set search_path = public, private, extensions as $$
 declare result public.households;
 declare code text;
 begin
