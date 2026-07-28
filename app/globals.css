@@ -45,11 +45,11 @@ button:disabled { cursor: not-allowed; opacity: .45; }
 .upcoming-row strong, .day-copy strong { display: block; font-size: 15px; }
 .upcoming-row span, .day-copy span { display: block; margin-top: 4px; color: var(--muted); font-size: 12px; }
 .upcoming-row b { color: var(--accent); font-size: 12px; white-space: nowrap; }
-.bottom-nav { position: fixed; z-index: 4; right: 0; bottom: 0; left: 0; display: flex; justify-content: center; gap: min(22vw, 145px); height: 79px; padding: 10px 24px max(10px, env(safe-area-inset-bottom)); border-top: 1px solid var(--line); background: rgba(10,16,15,.82); backdrop-filter: blur(20px); }
+.bottom-nav { position: fixed; z-index: 4; right: 0; bottom: 0; left: 0; display: flex; align-items: flex-start; justify-content: space-between; height: 79px; padding: 10px 24px max(10px, env(safe-area-inset-bottom)); border-top: 1px solid var(--line); background: rgba(10,16,15,.82); backdrop-filter: blur(20px); }
 .bottom-nav button { display: flex; min-width: 48px; flex-direction: column; align-items: center; gap: 4px; border: 0; color: #aaa99f; background: transparent; font-size: 11px; }
 .bottom-nav button.active { color: var(--accent); }
-.bottom-nav .add-fab { width: 54px; height: 54px; min-width: 54px; margin-top: -29px; border: 5px solid #17211e; border-radius: 50%; color: #272116; background: var(--accent); box-shadow: 0 8px 22px rgba(0,0,0,.25); }
-.attribution { position: fixed; z-index: 3; right: 12px; bottom: 88px; color: rgba(255,248,231,.65); font-size: 9px; text-decoration: none; }
+.bottom-nav .add-fab { position: absolute; top: -29px; left: 50%; width: 54px; height: 54px; min-width: 54px; border: 5px solid #17211e; border-radius: 50%; color: #272116; background: var(--accent); box-shadow: 0 8px 22px rgba(0,0,0,.25); transform: translateX(-50%); }
+.bottom-nav .add-fab:hover { transform: translateX(-50%) translateY(-1px); }
 .toast { position: fixed; z-index: 10; right: 16px; bottom: 92px; left: 16px; margin: auto; width: fit-content; max-width: calc(100% - 32px); padding: 11px 15px; border: 1px solid var(--line); border-radius: 14px; color: var(--ink); background: rgba(15,20,19,.9); box-shadow: 0 14px 32px rgba(0,0,0,.25); font-size: 13px; }
 .shell { display: grid; place-items: center; padding: 24px; background: radial-gradient(circle at 20% 5%, #445b46, transparent 43%), #16201e; }
 .shell-glow { position: fixed; inset: 0; background: radial-gradient(circle at 85% 88%, rgba(240,177,104,.22), transparent 35%); pointer-events: none; }

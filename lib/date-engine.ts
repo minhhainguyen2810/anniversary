@@ -53,10 +53,16 @@ export function nextYearlyOccurrence(anniversaryDate: string, today: string) {
   return thisYear > today ? thisYear : yearlyOccurrence(anniversaryDate, year + 1);
 }
 
-export function nextMilestone(anniversaryDate: string, today: string) {
+export function isBirthdayName(name: string) {
+  return name.toLocaleLowerCase().includes("birthday");
+}
+
+export function nextMilestone(anniversaryDate: string, today: string, name = "") {
+  if (isBirthdayName(name)) return null;
   const elapsed = dateDifference(anniversaryDate, today);
-  const n = Math.max(1, Math.floor(elapsed / 100) + 1);
-  return { date: addCalendarDays(anniversaryDate, n * 100), milestone: n * 100 };
+  const interval = elapsed > 1000 ? 1000 : 100;
+  const n = Math.max(1, Math.floor(elapsed / interval) + 1);
+  return { date: addCalendarDays(anniversaryDate, n * interval), milestone: n * interval };
 }
 
 export function addCalendarDays(value: string, days: number) {
@@ -68,7 +74,8 @@ export function addCalendarDays(value: string, days: number) {
 export function isSpecialToday(anniversary: Anniversary, today: string) {
   const yearly = yearlyOccurrence(anniversary.anniversary_date, parts(today).year) === today;
   const elapsed = dateDifference(anniversary.anniversary_date, today);
-  const milestone = elapsed > 0 && elapsed % 100 === 0;
+  const interval = elapsed > 1000 ? 1000 : 100;
+  const milestone = !isBirthdayName(anniversary.name) && elapsed > 0 && elapsed % interval === 0;
   return { yearly, milestone };
 }
 
@@ -91,11 +98,10 @@ export function upcomingOccurrences(anniversaries: Anniversary[], today: string)
   const occurrences: SpecialOccurrence[] = [];
   for (const anniversary of anniversaries) {
     const yearly = nextYearlyOccurrence(anniversary.anniversary_date, today);
-    const milestone = nextMilestone(anniversary.anniversary_date, today);
+    const milestone = nextMilestone(anniversary.anniversary_date, today, anniversary.name);
     occurrences.push({ id: `${anniversary.id}-yearly-${yearly}`, name: anniversary.name, date: yearly, kind: "yearly", daysAway: dateDifference(today, yearly) });
-    occurrences.push({ id: `${anniversary.id}-milestone-${milestone.date}`, name: anniversary.name, date: milestone.date, kind: "milestone", milestone: milestone.milestone, daysAway: dateDifference(today, milestone.date) });
+    if (milestone) occurrences.push({ id: `${anniversary.id}-milestone-${milestone.date}`, name: anniversary.name, date: milestone.date, kind: "milestone", milestone: milestone.milestone, daysAway: dateDifference(today, milestone.date) });
   }
   const deduped = Array.from(new Map(occurrences.map((item) => [`${item.name.toLowerCase()}-${item.date}`, item])).values());
   return deduped.sort((a, b) => a.daysAway - b.daysAway || a.name.localeCompare(b.name));
 }
-

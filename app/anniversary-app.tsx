@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import confetti from "canvas-confetti";
 import { CalendarDays, ChevronRight, Copy, Edit3, Home, LogOut, PartyPopper, Plus, RefreshCw, Settings2, Trash2, Users, X } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import { countdown, formatDate, isSpecialToday, localIsoDate, upcomingOccurrences } from "@/lib/date-engine";
+import { countdown, dateDifference, formatDate, isSpecialToday, localIsoDate, upcomingOccurrences } from "@/lib/date-engine";
 
 export type AppAnniversary = { id: string; name: string; anniversary_date: string };
 type Mode = "config" | "signed-out" | "onboarding" | "ready";
@@ -30,7 +30,7 @@ export default function AnniversaryApp({ mode, anniversaries: initial, household
   const today = localIsoDate();
   const todaysEvents = useMemo(() => anniversaries.flatMap((anniversary) => {
     const matches = isSpecialToday(anniversary, today);
-    return [matches.yearly && { ...anniversary, kind: "yearly" as const }, matches.milestone && { ...anniversary, kind: "milestone" as const }].filter(Boolean) as Array<AppAnniversary & { kind: "yearly" | "milestone" }>;
+    return [matches.yearly && { ...anniversary, kind: "yearly" as const }, matches.milestone && { ...anniversary, kind: "milestone" as const, milestone: dateDifference(anniversary.anniversary_date, today) }].filter(Boolean) as Array<AppAnniversary & { kind: "yearly" | "milestone"; milestone?: number }>;
   }), [anniversaries, today]);
   const upcoming = useMemo(() => upcomingOccurrences(anniversaries, today), [anniversaries, today]);
   const headline = upcoming[headlineIndex % Math.max(upcoming.length, 1)];
@@ -119,7 +119,7 @@ export default function AnniversaryApp({ mode, anniversaries: initial, household
       {tab === "home" ? <>
         <section className={`hero-card ${special ? "is-special" : ""}`}>
           <div className="hero-kicker">{special ? "A special day" : "Coming up"}</div>
-          {special ? <><h1>{todaysEvents.map((event) => event.name).join(" & ")}</h1><div className="event-pills">{todaysEvents.map((event) => <span key={`${event.id}-${event.kind}`} className="pill">{event.kind === "yearly" ? "Yearly anniversary" : "100-day milestone"}</span>)}</div><button className="celebrate-button" onClick={() => { if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return; void confetti({ particleCount: 130, spread: 95, origin: { y: 0.58 }, colors: ["#f7d58a", "#ff9f83", "#d6e5b3", "#fff8e7"] }); }}><PartyPopper size={20} /> Make it sparkle</button></> : upcoming.length ? <><p className="countdown">{countdown(headline.daysAway)}</p><h1>{headline.name}</h1><p className="hero-date">{formatDate(headline.date)}</p><p className="hero-detail">{headline.kind === "milestone" ? `${headline.milestone} days together` : "Yearly anniversary"}</p></> : <EmptyState icon={<CalendarDays />} title="No dates yet" body="Add your first anniversary below and we’ll count every meaningful day." />}
+          {special ? <><h1>{todaysEvents.map((event) => event.name).join(" & ")}</h1><div className="event-pills">{todaysEvents.map((event) => <span key={`${event.id}-${event.kind}`} className="pill">{event.kind === "yearly" ? "Yearly anniversary" : `${event.milestone ?? 100}-day milestone`}</span>)}</div><button className="celebrate-button" onClick={() => { if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return; void confetti({ particleCount: 130, spread: 95, origin: { y: 0.58 }, colors: ["#f7d58a", "#ff9f83", "#d6e5b3", "#fff8e7"] }); }}><PartyPopper size={20} /> Make it sparkle</button></> : upcoming.length ? <><p className="countdown">{countdown(headline.daysAway)}</p><h1>{headline.name}</h1><p className="hero-date">{formatDate(headline.date)}</p><p className="hero-detail">{headline.kind === "milestone" ? `${headline.milestone} days together` : "Yearly anniversary"}</p></> : <EmptyState icon={<CalendarDays />} title="No dates yet" body="Add your first anniversary below and we’ll count every meaningful day." />}
         </section>
         {!special && upcoming.length > 0 && <section className="upcoming-section"><div className="section-heading"><h2>Coming up</h2><span>{upcoming.length} moments</span></div><div className="upcoming-list">{upcoming.slice(0, 5).map((event) => <article className="upcoming-row" key={event.id}><div><strong>{event.name}</strong><span>{formatDate(event.date)} · {event.kind === "milestone" ? `${event.milestone} days` : "Yearly"}</span></div><b>{countdown(event.daysAway)}</b></article>)}</div></section>}
       </> : <DaysView anniversaries={anniversaries} onAdd={() => { setEditing(null); setModal("add"); }} onEdit={(item) => { setEditing(item); setModal("edit"); }} onDelete={removeAnniversary} household={household} onCopy={() => { navigator.clipboard?.writeText(household?.invite_code ?? ""); setToast("Invite code copied."); }} onSignOut={signOut} />}
@@ -127,7 +127,6 @@ export default function AnniversaryApp({ mode, anniversaries: initial, household
     <nav className="bottom-nav"><button className={tab === "home" ? "active" : ""} onClick={() => setTab("home")}><Home size={20} /><span>Home</span></button><button className="add-fab" onClick={() => { setEditing(null); setModal("add"); }} aria-label="Add anniversary"><Plus size={26} /></button><button className={tab === "days" ? "active" : ""} onClick={() => setTab("days")}><CalendarDays size={20} /><span>Days</span></button></nav>
     {modal && <AnniversaryModal mode={modal} initial={editing} onClose={() => { setModal(null); setEditing(null); }} onSave={saveAnniversary} />}
     {toast && <div className="toast" role="status">{toast}</div>}
-    {photo && <a className="attribution" href={photo.pageUrl} target="_blank" rel="noreferrer">Photo by {photo.photographer} on Pexels</a>}
   </main>;
 }
 
