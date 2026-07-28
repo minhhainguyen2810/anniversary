@@ -90,9 +90,11 @@ export default function AnniversaryApp({ mode, anniversaries: initial, household
     if (!supabase || !household) return;
     const cleanName = name.trim();
     if (!cleanName || !date || date > today || cleanName.length > 80) { setToast("Enter a name and a past or today’s date."); return; }
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) { setToast("Your session expired. Please sign in again."); return; }
     const result = editing
       ? await supabase.from("anniversaries").update({ name: cleanName, anniversary_date: date, updated_at: new Date().toISOString() }).eq("id", editing.id).select("id, name, anniversary_date").single()
-      : await supabase.from("anniversaries").insert({ household_id: household.id, name: cleanName, anniversary_date: date }).select("id, name, anniversary_date").single();
+      : await supabase.from("anniversaries").insert({ household_id: household.id, name: cleanName, anniversary_date: date, created_by: user.id }).select("id, name, anniversary_date").single();
     if (result.error) setToast(result.error.message.includes("duplicate") ? "That anniversary already exists." : result.error.message);
     else { setAnniversaries((items) => editing ? items.map((item) => item.id === editing.id ? result.data : item) : [...items, result.data]); setModal(null); setEditing(null); setToast(editing ? "Anniversary updated." : "Anniversary added."); }
   }

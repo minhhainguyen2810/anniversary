@@ -21,7 +21,7 @@ create table if not exists public.anniversaries (
   household_id uuid not null references public.households(id) on delete cascade,
   name text not null check (char_length(btrim(name)) between 1 and 80),
   anniversary_date date not null,
-  created_by uuid not null references auth.users(id) on delete restrict,
+  created_by uuid not null default auth.uid() references auth.users(id) on delete restrict,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
