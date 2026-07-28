@@ -54,10 +54,6 @@ export default function AnniversaryApp({ mode, anniversaries: initial, household
     else void loadPhoto(Math.floor(Math.random() * 20) + 1);
   }
 
-  function signIn() {
-    window.location.assign("/auth/login");
-  }
-
   async function signOut() { if (supabase) { await supabase.auth.signOut(); window.location.reload(); } }
 
   async function createHousehold() {
@@ -91,7 +87,7 @@ export default function AnniversaryApp({ mode, anniversaries: initial, household
 
   const background = photo?.portrait || photo?.landscape;
   if (mode === "config") return <Shell><EmptyState icon={<Settings2 />} title="Almost ready" body="Add your Supabase URL and publishable key to .env.local, then restart the app." /> </Shell>;
-  if (mode === "signed-out") return <Shell><div className="auth-card"><div className="brand-mark"><CalendarDays /></div><p className="eyebrow">A little time capsule</p><h1>Keep the days worth celebrating close.</h1><p className="muted">Share anniversaries with your household, and let every 100-day milestone become a reason to pause.</p><button className="primary-button wide" onClick={signIn}>Continue with Google <ChevronRight size={18} /></button><p className="fine-print">Your dates are private to your household.</p></div></Shell>;
+  if (mode === "signed-out") return <Shell><EmailAuthCard initialMessage={authError} /></Shell>;
   if (mode === "onboarding") return <Shell><Onboarding onCreate={createHousehold} onJoin={joinHousehold} signOut={signOut} /></Shell>;
 
   const special = todaysEvents.length > 0;
@@ -117,6 +113,73 @@ export default function AnniversaryApp({ mode, anniversaries: initial, household
 
 function Shell({ children }: { children: React.ReactNode }) { return <main className="shell"><div className="shell-glow" /><div className="shell-inner">{children}</div></main>; }
 function EmptyState({ icon, title, body }: { icon: React.ReactNode; title: string; body: string }) { return <div className="empty-state"><div className="empty-icon">{icon}</div><h2>{title}</h2><p>{body}</p></div>; }
+
+function EmailAuthCard({ initialMessage }: { initialMessage?: string }) {
+  const [authMode, setAuthMode] = useState<"sign-in" | "sign-up">("sign-in");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [message, setMessage] = useState(initialMessage ?? "");
+  const [submitting, setSubmitting] = useState(false);
+
+  async function submit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setMessage("");
+    setSubmitting(true);
+    const client = createClient();
+
+    if (authMode === "sign-in") {
+      const { error } = await client.auth.signInWithPassword({ email: email.trim(), password });
+      if (error) {
+        setMessage(error.message);
+        setSubmitting(false);
+        return;
+      }
+      window.location.assign("/");
+      return;
+    }
+
+    const { data, error } = await client.auth.signUp({
+      email: email.trim(),
+      password,
+      options: { emailRedirectTo: window.location.origin },
+    });
+    if (error) {
+      setMessage(error.message);
+      setSubmitting(false);
+      return;
+    }
+    if (data.session) {
+      window.location.assign("/");
+      return;
+    }
+    setMessage("Check your inbox and confirm your email, then sign in.");
+    setAuthMode("sign-in");
+    setSubmitting(false);
+  }
+
+  function switchMode(mode: "sign-in" | "sign-up") {
+    setAuthMode(mode);
+    setMessage("");
+  }
+
+  return <div className="auth-card">
+    <div className="brand-mark"><CalendarDays /></div>
+    <p className="eyebrow">A little time capsule</p>
+    <h1>Keep the days worth celebrating close.</h1>
+    <p className="muted">Share anniversaries with your household, and let every 100-day milestone become a reason to pause.</p>
+    <div className="auth-tabs" role="tablist" aria-label="Authentication mode">
+      <button type="button" role="tab" aria-selected={authMode === "sign-in"} className={authMode === "sign-in" ? "active" : ""} onClick={() => switchMode("sign-in")}>Sign in</button>
+      <button type="button" role="tab" aria-selected={authMode === "sign-up"} className={authMode === "sign-up" ? "active" : ""} onClick={() => switchMode("sign-up")}>Create account</button>
+    </div>
+    <form className="auth-form" onSubmit={submit}>
+      <label>Email<input type="email" required autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@example.com" /></label>
+      <label>Password<input type="password" required minLength={6} autoComplete={authMode === "sign-in" ? "current-password" : "new-password"} value={password} onChange={(event) => setPassword(event.target.value)} placeholder="At least 6 characters" /></label>
+      {message && <p className="auth-message" role="status">{message}</p>}
+      <button className="primary-button wide" type="submit" disabled={submitting}>{submitting ? "Please wait…" : authMode === "sign-in" ? "Sign in with email" : "Create account"}</button>
+    </form>
+    <p className="fine-print">Your dates are private to your household.</p>
+  </div>;
+}
 
 function Onboarding({ onCreate, onJoin, signOut }: { onCreate: () => void; onJoin: (code: string) => void; signOut: () => void }) {
   const [code, setCode] = useState("");

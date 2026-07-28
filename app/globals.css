@@ -60,6 +60,12 @@ button:disabled { cursor: not-allowed; opacity: .45; }
 .brand-mark { margin-bottom: 58px; }
 .muted { color: var(--muted); line-height: 1.65; }
 .fine-print { margin: 15px 0 0; color: rgba(255,248,231,.5); text-align: center; font-size: 11px; }
+.auth-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin: 25px 0 18px; padding: 4px; border: 1px solid var(--line); border-radius: 14px; background: rgba(255,255,255,.04); }
+.auth-tabs button { padding: 9px 10px; border: 0; border-radius: 10px; color: var(--muted); background: transparent; font-size: 12px; font-weight: 700; }
+.auth-tabs button.active { color: #261f15; background: var(--accent); }
+.auth-form label { display: block; margin-bottom: 14px; color: var(--muted); font-size: 12px; text-align: left; }
+.auth-form input { display: block; margin-top: 7px; }
+.auth-message { margin: -2px 0 13px; padding: 10px 12px; border: 1px solid rgba(244,202,131,.25); border-radius: 11px; color: #f7dfb6; background: rgba(244,202,131,.08); font-size: 12px; line-height: 1.45; }
 .or { display: flex; align-items: center; gap: 10px; margin: 26px 0 16px; color: rgba(255,248,231,.45); font-size: 11px; text-transform: uppercase; letter-spacing: .1em; }
 .or:before, .or:after { content: ""; height: 1px; flex: 1; background: var(--line); }
 .join-row { display: flex; gap: 8px; }
