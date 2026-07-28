@@ -30,6 +30,23 @@ function iso(year: number, month: number, day: number) {
     .padStart(2, "0")}-${day.toString().padStart(2, "0")}`;
 }
 
+export function formatDateInput(value: string) {
+  const { year, month, day } = parts(value);
+  return `${day.toString().padStart(2, "0")}/${month.toString().padStart(2, "0")}/${year.toString().padStart(4, "0")}`;
+}
+
+export function parseDateInput(value: string) {
+  const match = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(value.trim());
+  if (!match) return null;
+  const [, dayText, monthText, yearText] = match;
+  const day = Number(dayText);
+  const month = Number(monthText);
+  const year = Number(yearText);
+  const candidate = new Date(Date.UTC(year, month - 1, day));
+  if (candidate.getUTCFullYear() !== year || candidate.getUTCMonth() !== month - 1 || candidate.getUTCDate() !== day) return null;
+  return iso(year, month, day);
+}
+
 export function localIsoDate(date = new Date()) {
   return iso(date.getFullYear(), date.getMonth() + 1, date.getDate());
 }

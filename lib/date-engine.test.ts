@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { addCalendarDays, dateDifference, formatDate, isSpecialToday, nextMilestone, yearlyOccurrence } from "./date-engine";
+import { addCalendarDays, dateDifference, formatDate, formatDateInput, isSpecialToday, nextMilestone, parseDateInput, yearlyOccurrence } from "./date-engine";
 
 describe("anniversary date engine", () => {
   it("uses calendar days, not elapsed hours", () => {
@@ -32,5 +32,10 @@ describe("anniversary date engine", () => {
   });
   it("formats requested ordinal dates", () => {
     expect(formatDate("2026-01-06")).toBe("Tue Jan 6th");
+  });
+  it("parses and formats calendar inputs as dd/mm/yyyy", () => {
+    expect(formatDateInput("2026-01-06")).toBe("06/01/2026");
+    expect(parseDateInput("06/01/2026")).toBe("2026-01-06");
+    expect(parseDateInput("31/02/2026")).toBeNull();
   });
 });

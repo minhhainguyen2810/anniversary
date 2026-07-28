@@ -46,7 +46,7 @@ button:disabled { cursor: not-allowed; opacity: .45; }
 .upcoming-row span, .day-copy span { display: block; margin-top: 4px; color: var(--muted); font-size: 12px; }
 .upcoming-row b { color: var(--accent); font-size: 12px; white-space: nowrap; }
 .bottom-nav { position: fixed; z-index: 4; right: 0; bottom: 0; left: 0; display: flex; align-items: flex-start; justify-content: space-between; height: 79px; padding: 10px 24px max(10px, env(safe-area-inset-bottom)); border-top: 1px solid var(--line); background: rgba(10,16,15,.82); backdrop-filter: blur(20px); }
-.bottom-nav button { display: flex; min-width: 48px; flex-direction: column; align-items: center; gap: 4px; border: 0; color: #aaa99f; background: transparent; font-size: 11px; }
+.bottom-nav button { display: flex; min-width: 48px; flex-direction: column; align-items: center; justify-content: center; gap: 4px; border: 0; color: #aaa99f; background: transparent; font-size: 11px; }
 .bottom-nav button.active { color: var(--accent); }
 .bottom-nav .add-fab { position: absolute; top: -29px; left: 50%; width: 54px; height: 54px; min-width: 54px; border: 5px solid #17211e; border-radius: 50%; color: #272116; background: var(--accent); box-shadow: 0 8px 22px rgba(0,0,0,.25); transform: translateX(-50%); }
 .bottom-nav .add-fab:hover { transform: translateX(-50%) translateY(-1px); }
@@ -78,6 +78,8 @@ input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(244,202,13
 .days-view h1 { margin: 5px 0 0; font-size: 45px; }
 .invite-card { display: flex; align-items: center; justify-content: space-between; margin: 20px 0 18px; padding: 14px 16px; border: 1px solid rgba(244,202,131,.25); border-radius: 18px; background: rgba(244,202,131,.1); }
 .invite-card strong { display: block; margin-top: 3px; color: var(--accent); font: 600 20px Georgia, serif; letter-spacing: .12em; }
+.invite-actions { display: flex; align-items: center; gap: 8px; }
+.compact { padding: 8px 10px; font-size: 11px; }
 .small { font-size: 11px; }
 .day-icon { display: grid; width: 36px; height: 36px; flex: 0 0 auto; place-items: center; border-radius: 12px; color: var(--accent); background: rgba(244,202,131,.12); }
 .day-row { justify-content: flex-start; }
@@ -95,5 +97,9 @@ input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(244,202,13
 .modal-heading h2 { margin: 5px 0 0; font: 500 31px Georgia, serif; }
 .modal-card label { display: block; margin-bottom: 15px; color: var(--muted); font-size: 12px; }
 .modal-card input { display: block; margin-top: 7px; }
+.field-help { display: block; margin-top: 6px; color: rgba(255,248,231,.5); font-size: 11px; }
+.member-modal { text-align: left; }
+.member-code { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 20px 0; padding: 15px 16px; border: 1px solid rgba(244,202,131,.3); border-radius: 16px; background: rgba(244,202,131,.1); }
+.member-code strong { color: var(--accent); font: 600 24px Georgia, serif; letter-spacing: .16em; }
 @media (min-width: 760px) { .content-wrap { padding-top: 80px; } .hero-card { min-height: 450px; padding: 40px; } .modal-backdrop { align-items: center; padding: 24px; } .modal-card { border-bottom: 1px solid var(--line); border-radius: 28px; } }
 @media (prefers-reduced-motion: reduce) { *, *:before, *:after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; } }
