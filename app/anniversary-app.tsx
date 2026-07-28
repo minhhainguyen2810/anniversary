@@ -128,13 +128,25 @@ function EmailAuthCard({ initialMessage }: { initialMessage?: string }) {
     const client = createClient();
 
     if (authMode === "sign-in") {
-      const { error } = await client.auth.signInWithPassword({ email: email.trim(), password });
-      if (error) {
-        setMessage(error.message);
+      try {
+        const response = await fetch("/api/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: email.trim(), password }),
+        });
+        const result = await response.json() as { error?: string };
+
+        if (!response.ok) {
+          setMessage(result.error ?? "Unable to sign in. Please try again.");
+          return;
+        }
+
+        window.location.replace("/");
+      } catch {
+        setMessage("Unable to reach the sign-in service. Please try again.");
+      } finally {
         setSubmitting(false);
-        return;
       }
-      window.location.assign("/");
       return;
     }
 
